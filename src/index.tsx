@@ -212,6 +212,8 @@ class PropertyEvaluation extends React.Component<{}, AppState> {
     let resultHolder: Array<Result> = this.state.results.slice();// Making a copy of existing this.state.result array. 
     for (let i = resultHolder.length; i >= 0; i--){// Emptying the array copy and get ready for data entry. 
       resultHolder.pop();
+      // array.pop() tutorial from: 
+      //  https://www.educative.io/answers/how-to-remove-an-arrays-element-in-typescript-using-pop
     }
 
     /**
