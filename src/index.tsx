@@ -17,7 +17,9 @@ interface AppState{
   size: number,
   isFloodzone: boolean, 
   results: Array<Result>,
-  listSize: number
+  listSize: number, 
+  errorMsgZone?: string, 
+  errorMsgSize?: string
 }
 
 // class implementation is mostly following tutorial on reactjs.org
@@ -29,7 +31,7 @@ class PropertyEvaluation extends React.Component<{}, AppState> {
     //  so for now I will keep the props element as any type to ensure the program can run. 
     super(props);
     this.state = {
-      zone: '',// string
+      zone: '0',// string
       size: 0,// number
       isFloodzone: false,// boolean
       results: Array<Result>(4), // Array<Result>, this initialises a empty Result[] array with 4 pre-allocated spaces
@@ -65,7 +67,9 @@ class PropertyEvaluation extends React.Component<{}, AppState> {
                 <option value='2'>Zone 2</option>
                 <option value='3'>Zone 3</option>
               </select>
-            </label>         
+            </label>
+            <br></br>
+            <label style={{color: "red"}}> {this.state.errorMsgZone} </label>         
 
             <br></br>
             <br></br>
@@ -80,6 +84,8 @@ class PropertyEvaluation extends React.Component<{}, AppState> {
               />
               Square Metres
             </label>
+            <br></br>
+            <label style={{color: "red"}}> {this.state.errorMsgSize} </label>
 
             <br></br>
             <br></br>
@@ -150,16 +156,36 @@ class PropertyEvaluation extends React.Component<{}, AppState> {
       return;// stop the submit operation if this.stats.size is not a number. 
     }
 
-    if (this.state.size <= 0){// Additional check to ensure size is not 0 or negative number. 
+    this.setState({
+      errorMsgZone: "",
+      errorMsgSize: ""
+    });
+
+    if (this.state.zone === '0'){// Additional check to ensure size is not 0 or negative number. 
       this.setState({// resets the everything back to initial on invalid size input. 
         zone: '0', 
         size: 0,
         isFloodzone: false, 
         listSize: 0,
-        results: [] as Result[]// Create a new empty Array storing Result type and assign it to the state.
+        results: [] as Result[], // Create a new empty Array storing Result type and assign it to the state.
+        errorMsgZone: "Please select zone"
       });
       return;// stop the submit operation if size number is invalid. 
     }
+
+    if (this.state.size <= 0){// Additional check to ensure size is not 0 or negative number.       
+      this.setState({// resets the everything back to initial on invalid size input. 
+        zone: '0', 
+        size: 0,
+        isFloodzone: false, 
+        listSize: 0,
+        results: [] as Result[], // Create a new empty Array storing Result type and assign it to the state.
+        errorMsgSize: "Please input positive numbers"
+      });
+      return;// stop the submit operation if size number is invalid. 
+    }
+
+    
     
     // Pass the data stored in this.state to check the rules of building types
     this.checkRules(this.state.zone, this.state.size, this.state.isFloodzone);
@@ -279,7 +305,7 @@ class PropertyEvaluation extends React.Component<{}, AppState> {
       results: resultHolder
     }));
     
-  }
+  }// end of checkRules()
 
   checkSingleDwellingHouse(zone: string, isFloodzone: boolean, currentListSize: number): boolean{
     return ((zone === '1' || zone === '2') && !isFloodzone)
