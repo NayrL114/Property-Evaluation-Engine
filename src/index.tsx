@@ -156,36 +156,39 @@ class PropertyEvaluation extends React.Component<{}, AppState> {
       return;// stop the submit operation if this.stats.size is not a number. 
     }
 
-    this.setState({
+    this.setState({// resetting error messages. 
       errorMsgZone: "",
       errorMsgSize: ""
     });
 
-    if (this.state.zone === '0'){// Additional check to ensure size is not 0 or negative number. 
-      this.setState({// resets the everything back to initial on invalid size input. 
+    if (this.state.zone === '0'){// Additional check to ensure zone selected is not default. 
+      this.setState({// Presents an error message on front-end for invalid zone input. 
+        /* The following code will present a different UX, 
+            where submitting invalid zone or size inputs will clear out the input fields.  
         zone: '0', 
         size: 0,
         isFloodzone: false, 
         listSize: 0,
         results: [] as Result[], // Create a new empty Array storing Result type and assign it to the state.
+        */
         errorMsgZone: "Please select zone"
       });
-      return;// stop the submit operation if size number is invalid. 
+      return;// stop the submit operation if zone selection is invalid. 
     }
 
     if (this.state.size <= 0){// Additional check to ensure size is not 0 or negative number.       
-      this.setState({// resets the everything back to initial on invalid size input. 
+      this.setState({// Presents an error message on front-end for invalid size input.  
+        /*
         zone: '0', 
         size: 0,
         isFloodzone: false, 
         listSize: 0,
         results: [] as Result[], // Create a new empty Array storing Result type and assign it to the state.
+        */
         errorMsgSize: "Please input positive numbers"
       });
       return;// stop the submit operation if size number is invalid. 
-    }
-
-    
+    }  
     
     // Pass the data stored in this.state to check the rules of building types
     this.checkRules(this.state.zone, this.state.size, this.state.isFloodzone);
@@ -235,12 +238,16 @@ class PropertyEvaluation extends React.Component<{}, AppState> {
      */
 
     let currentListSize: number = 0;// A seperate iterator for keeping track of array copy in this function.
-    let resultHolder: Array<Result> = this.state.results.slice();// Making a copy of existing this.state.result array. 
+    let resultHolder: Array<Result> = [];
+    
+    /*
+    this.state.results.slice();// Making a copy of existing this.state.result array. 
     for (let i = resultHolder.length; i >= 0; i--){// Emptying the array copy and get ready for data entry. 
       resultHolder.pop();
       // array.pop() tutorial from: 
       //  https://www.educative.io/answers/how-to-remove-an-arrays-element-in-typescript-using-pop
     }
+    */
 
     /**
      * check-functions return boolean type, 
@@ -259,7 +266,7 @@ class PropertyEvaluation extends React.Component<{}, AppState> {
      *  */ 
     
     // Adding Single Dwelling House into display array
-    if (this.checkSingleDwellingHouse(zone, isFloodzone, currentListSize)){
+    if (this.checkSingleDwellingHouse(zone, isFloodzone)){
       let newResult: Result = {// 
         text: "Single Dwelling House", 
         id: currentListSize
@@ -269,7 +276,7 @@ class PropertyEvaluation extends React.Component<{}, AppState> {
     }
     
     // Adding Apartment Complex into display array
-    if (this.checkApartmentComplex(zone, size, isFloodzone, currentListSize)){
+    if (this.checkApartmentComplex(zone, size, isFloodzone)){
       let newResult: Result = {// 
         text: "Apartment Complex", 
         id: currentListSize
@@ -279,7 +286,7 @@ class PropertyEvaluation extends React.Component<{}, AppState> {
     }
 
     // Adding Commercial Building into display array
-    if (this.checkCommercialBuilding(zone, size, currentListSize)){
+    if (this.checkCommercialBuilding(zone, size)){
       let newResult: Result = {// 
         text: "Commercial Building", 
         id: currentListSize
@@ -307,7 +314,7 @@ class PropertyEvaluation extends React.Component<{}, AppState> {
     
   }// end of checkRules()
 
-  checkSingleDwellingHouse(zone: string, isFloodzone: boolean, currentListSize: number): boolean{
+  checkSingleDwellingHouse(zone: string, isFloodzone: boolean): boolean{
     return ((zone === '1' || zone === '2') && !isFloodzone)
     /**
         These check-functions represents the rule for determine if this building type is valid. 
@@ -322,7 +329,7 @@ class PropertyEvaluation extends React.Component<{}, AppState> {
       */
   }
 
-  checkApartmentComplex(zone: string, size: number, isFloodzone: boolean, currentListSize: number): boolean{
+  checkApartmentComplex(zone: string, size: number, isFloodzone: boolean): boolean{
     return ((zone === '2' || zone === '3') && size >= 500 && !isFloodzone);
     /**
        * For Apartment Complex:
@@ -332,10 +339,10 @@ class PropertyEvaluation extends React.Component<{}, AppState> {
        */
   }
 
-  checkCommercialBuilding(zone: string, size: number, currentListSize: number): boolean{
+  checkCommercialBuilding(zone: string, size: number): boolean{
     return ((zone === '3') && size > 1000);
     /**
-       * For Commercial Building
+       * For Commercial Building: 
        *  Located in Zone 3 only
        *  Larger than 1000 m2 size
        *  Can be in Floodzone (so I did not passed in isFloodzone boolean since it is not checked at all)
